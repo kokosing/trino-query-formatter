@@ -8,8 +8,8 @@
         <version>59</version>
     </parent>
 
-    <groupId>com.facebook.presto</groupId>
-    <artifactId>presto-root</artifactId>
+    <groupId>rocks.prestodb</groupId>
+    <artifactId>presto-query-formatter</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -26,6 +26,15 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <developers>
+      <developer>
+        <name>Grzegorz Kokosinski</name>
+        <email>kokosing@prestodb.rocks</email>
+        <organization>prestodb.rocks</organization>
+        <organizationUrl>http://prestodb.rocks</organizationUrl>
+      </developer>
+  </developers>
 
     <scm>
         <connection>scm:git:git://github.com/prestodb-rocks/presto-query-formatter.git</connection>
