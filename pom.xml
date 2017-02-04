@@ -15,7 +15,7 @@
 
     <name>presto-query-formatterroot</name>
     <description>Presto query formatter</description>
-    <url>https://github.com/kokosing/presto-query-formatter</url>
+    <url>https://github.com/prestodb-rocks/presto-query-formatter</url>
 
     <inceptionYear>2016</inceptionYear>
 
@@ -28,7 +28,7 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/kokosing/presto-query-formatter.git</connection>
+        <connection>scm:git:git://github.com/prestodb-rocks/presto-query-formatter.git</connection>
         <url>https://github.com/facebook/presto</url>
         <tag>HEAD</tag>
     </scm>
