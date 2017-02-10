@@ -22,9 +22,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Optional;
 
-import static com.facebook.presto.sql.SqlFormatter.formatSql;
+import static rocks.prestodb.query.formatatter.StatementFormatter.formatSql;
 
-public class Formatter
+public class Main
 {
     private static final SqlParser SQL_PARSER = new SqlParser();
 
