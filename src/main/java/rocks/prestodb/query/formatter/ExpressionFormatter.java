@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package rocks.prestodb.query.formatatter;
+package rocks.prestodb.query.formatter;
 
 import com.facebook.presto.sql.tree.AllColumns;
 import com.facebook.presto.sql.tree.ArithmeticBinaryExpression;
@@ -89,8 +89,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
-import static rocks.prestodb.query.formatatter.StatementFormatter.formatSql;
-import static rocks.prestodb.query.formatatter.StatementFormatter.indentString;
+import static rocks.prestodb.query.formatter.StatementFormatter.formatSql;
+import static rocks.prestodb.query.formatter.StatementFormatter.indentString;
 
 public final class ExpressionFormatter
 {

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package rocks.prestodb.query.formatatter;
+package rocks.prestodb.query.formatter;
 
 import com.facebook.presto.sql.tree.AddColumn;
 import com.facebook.presto.sql.tree.AliasedRelation;
@@ -99,10 +99,10 @@ import java.util.regex.Pattern;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static java.util.stream.Collectors.joining;
-import static rocks.prestodb.query.formatatter.ExpressionFormatter.formatExpression;
-import static rocks.prestodb.query.formatatter.ExpressionFormatter.formatGroupBy;
-import static rocks.prestodb.query.formatatter.ExpressionFormatter.formatSortItems;
-import static rocks.prestodb.query.formatatter.ExpressionFormatter.formatStringLiteral;
+import static rocks.prestodb.query.formatter.ExpressionFormatter.formatExpression;
+import static rocks.prestodb.query.formatter.ExpressionFormatter.formatGroupBy;
+import static rocks.prestodb.query.formatter.ExpressionFormatter.formatSortItems;
+import static rocks.prestodb.query.formatter.ExpressionFormatter.formatStringLiteral;
 
 public final class StatementFormatter
 {
