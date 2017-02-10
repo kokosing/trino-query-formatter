@@ -10,7 +10,7 @@
 
     <groupId>rocks.prestodb</groupId>
     <artifactId>presto-query-formatter</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <packaging>jar</packaging>
 
     <name>presto-query-formatter</name>
@@ -39,7 +39,7 @@
     <scm>
         <connection>scm:git:git://github.com/prestodb-rocks/presto-query-formatter.git</connection>
         <url>https://github.com/facebook/presto</url>
-        <tag>HEAD</tag>
+        <tag>0.1</tag>
     </scm>
 
     <properties>
