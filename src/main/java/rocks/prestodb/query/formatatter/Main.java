@@ -38,7 +38,7 @@ public class Main
                 String sql = buffer.toString();
                 StatementSplitter splitter = new StatementSplitter(sql, ImmutableSet.of(";", "\\G"));
                 for (StatementSplitter.Statement split : splitter.getCompleteStatements()) {
-                    System.out.println(formatSql(SQL_PARSER.createStatement(split.statement()), Optional.empty()) + ";");
+                    format(split.statement());
                 }
 
                 // replace buffer with trailing partial statement
@@ -48,6 +48,15 @@ public class Main
                     buffer.append(partial).append('\n');
                 }
             }
+            String sql = buffer.toString();
+            if (!sql.isEmpty()) {
+                format(sql);
+            }
         }
+    }
+
+    private static void format(String sql)
+    {
+        System.out.println(formatSql(SQL_PARSER.createStatement(sql), Optional.empty()) + ";");
     }
 }
