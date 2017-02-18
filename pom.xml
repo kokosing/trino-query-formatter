@@ -51,9 +51,8 @@
         <air.check.fail-checkstyle>true</air.check.fail-checkstyle>
         <air.check.skip-checkstyle>false</air.check.skip-checkstyle>
 
-        <air.java.version>1.8.0-60</air.java.version>
+        <air.java.version>1.8.0-30</air.java.version>
         <air.maven.version>3.3.9</air.maven.version>
-        <dep.slice.version>0.28</dep.slice.version>
 
         <cli.skip-execute>true</cli.skip-execute>
         <cli.main-class>None</cli.main-class>
