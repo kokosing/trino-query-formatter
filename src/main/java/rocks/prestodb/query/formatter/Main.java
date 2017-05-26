@@ -15,13 +15,14 @@ package rocks.prestodb.query.formatter;
 
 import com.facebook.presto.sql.parser.SqlParser;
 import com.facebook.presto.sql.parser.StatementSplitter;
+import com.facebook.presto.sql.tree.Statement;
 import com.google.common.collect.ImmutableSet;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkState;
 import static rocks.prestodb.query.formatter.StatementFormatter.formatSql;
 
 public class Main
@@ -57,6 +58,9 @@ public class Main
 
     private static void format(String sql)
     {
-        System.out.println(formatSql(SQL_PARSER.createStatement(sql), Optional.empty()) + ";");
+        Statement statement = SQL_PARSER.createStatement(sql);
+        String formattedSql = formatSql(statement);
+        checkState(statement.equals(SQL_PARSER.createStatement(formattedSql)), "Formatted SQL is different than oryginal");
+        System.out.println(formattedSql + ";");
     }
 }
