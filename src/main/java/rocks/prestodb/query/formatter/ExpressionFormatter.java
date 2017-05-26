@@ -64,8 +64,8 @@ import com.facebook.presto.sql.tree.SearchedCaseExpression;
 import com.facebook.presto.sql.tree.SimpleCaseExpression;
 import com.facebook.presto.sql.tree.SimpleGroupBy;
 import com.facebook.presto.sql.tree.SortItem;
-import com.facebook.presto.sql.tree.StackableAstVisitor;
-import com.facebook.presto.sql.tree.StackableAstVisitor.StackableAstVisitorContext;
+import com.facebook.presto.sql.tree.StackableAstVisitorRocks;
+import com.facebook.presto.sql.tree.StackableAstVisitorRocks.StackableAstVisitorContext;
 import com.facebook.presto.sql.tree.StringLiteral;
 import com.facebook.presto.sql.tree.SubqueryExpression;
 import com.facebook.presto.sql.tree.SubscriptExpression;
@@ -105,7 +105,7 @@ public final class ExpressionFormatter
     }
 
     public static class Formatter
-            extends StackableAstVisitor<String, Integer>
+            extends StackableAstVisitorRocks<String, Integer>
     {
         private final Optional<List<Expression>> parameters;
 
