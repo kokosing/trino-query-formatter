@@ -45,6 +45,11 @@ public class StackableAstVisitorRocks<R, C>
             this.context = context;
         }
 
+        public LinkedList<Node> getStack()
+        {
+            return stack;
+        }
+
         public C getContext()
         {
             return context;

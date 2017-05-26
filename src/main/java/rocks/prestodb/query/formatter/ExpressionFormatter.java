@@ -389,7 +389,7 @@ public final class ExpressionFormatter
 
         private StackableAstVisitorContext<Integer> increase(StackableAstVisitorContext<Integer> indent)
         {
-            return new StackableAstVisitorContext<>(indent.getContext() + 1);
+            return new StackableAstVisitorContext<>(indent.getContext() + 1, indent.getStack());
         }
 
         @Override
