@@ -17,7 +17,6 @@ import com.facebook.presto.sql.tree.AllColumns;
 import com.facebook.presto.sql.tree.ArithmeticBinaryExpression;
 import com.facebook.presto.sql.tree.ArithmeticUnaryExpression;
 import com.facebook.presto.sql.tree.ArrayConstructor;
-import com.facebook.presto.sql.tree.AstVisitor;
 import com.facebook.presto.sql.tree.AtTimeZone;
 import com.facebook.presto.sql.tree.BetweenPredicate;
 import com.facebook.presto.sql.tree.BinaryLiteral;
@@ -65,6 +64,8 @@ import com.facebook.presto.sql.tree.SearchedCaseExpression;
 import com.facebook.presto.sql.tree.SimpleCaseExpression;
 import com.facebook.presto.sql.tree.SimpleGroupBy;
 import com.facebook.presto.sql.tree.SortItem;
+import com.facebook.presto.sql.tree.StackableAstVisitor;
+import com.facebook.presto.sql.tree.StackableAstVisitor.StackableAstVisitorContext;
 import com.facebook.presto.sql.tree.StringLiteral;
 import com.facebook.presto.sql.tree.SubqueryExpression;
 import com.facebook.presto.sql.tree.SubscriptExpression;
@@ -100,11 +101,11 @@ public final class ExpressionFormatter
 
     public static String formatExpression(Expression expression, Optional<List<Expression>> parameters, int indent)
     {
-        return new Formatter(parameters).process(expression, indent);
+        return new Formatter(parameters).process(expression, new StackableAstVisitorContext<>(indent));
     }
 
     public static class Formatter
-            extends AstVisitor<String, Integer>
+            extends StackableAstVisitor<String, Integer>
     {
         private final Optional<List<Expression>> parameters;
 
@@ -114,13 +115,13 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitNode(Node node, Integer indent)
+        protected String visitNode(Node node, StackableAstVisitorContext<Integer> indent)
         {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        protected String visitRow(Row node, Integer indent)
+        protected String visitRow(Row node, StackableAstVisitorContext<Integer> indent)
         {
             return "ROW (" + Joiner.on(", ").join(node.getItems().stream()
                     .map((child) -> process(child, indent))
@@ -128,13 +129,13 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitExpression(Expression node, Integer indent)
+        protected String visitExpression(Expression node, StackableAstVisitorContext<Integer> indent)
         {
             throw new UnsupportedOperationException(format("not yet implemented: %s.visit%s", getClass().getName(), node.getClass().getSimpleName()));
         }
 
         @Override
-        protected String visitAtTimeZone(AtTimeZone node, Integer indent)
+        protected String visitAtTimeZone(AtTimeZone node, StackableAstVisitorContext<Integer> indent)
         {
             return new StringBuilder()
                     .append(process(node.getValue(), indent))
@@ -143,7 +144,7 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitCurrentTime(CurrentTime node, Integer indent)
+        protected String visitCurrentTime(CurrentTime node, StackableAstVisitorContext<Integer> indent)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -159,37 +160,37 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitExtract(Extract node, Integer indent)
+        protected String visitExtract(Extract node, StackableAstVisitorContext<Integer> indent)
         {
             return "EXTRACT(" + node.getField() + " FROM " + process(node.getExpression(), indent) + ")";
         }
 
         @Override
-        protected String visitBooleanLiteral(BooleanLiteral node, Integer indent)
+        protected String visitBooleanLiteral(BooleanLiteral node, StackableAstVisitorContext<Integer> indent)
         {
             return String.valueOf(node.getValue());
         }
 
         @Override
-        protected String visitStringLiteral(StringLiteral node, Integer indent)
+        protected String visitStringLiteral(StringLiteral node, StackableAstVisitorContext<Integer> indent)
         {
             return formatStringLiteral(node.getValue());
         }
 
         @Override
-        protected String visitCharLiteral(CharLiteral node, Integer indent)
+        protected String visitCharLiteral(CharLiteral node, StackableAstVisitorContext<Integer> indent)
         {
             return "CHAR " + formatStringLiteral(node.getValue());
         }
 
         @Override
-        protected String visitBinaryLiteral(BinaryLiteral node, Integer indent)
+        protected String visitBinaryLiteral(BinaryLiteral node, StackableAstVisitorContext<Integer> indent)
         {
             return "X'" + node.toHexString() + "'";
         }
 
         @Override
-        protected String visitParameter(Parameter node, Integer indent)
+        protected String visitParameter(Parameter node, StackableAstVisitorContext<Integer> indent)
         {
             if (parameters.isPresent()) {
                 checkArgument(node.getPosition() < parameters.get().size(), "Invalid parameter number %s.  Max value is %s", node.getPosition(), parameters.get().size() - 1);
@@ -199,65 +200,65 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitArrayConstructor(ArrayConstructor node, Integer indent)
+        protected String visitArrayConstructor(ArrayConstructor node, StackableAstVisitorContext<Integer> indent)
         {
             ImmutableList.Builder<String> valueStrings = ImmutableList.builder();
             for (Expression value : node.getValues()) {
-                valueStrings.add(formatExpression(value, parameters, indent + 1));
+                valueStrings.add(formatExpression(value, parameters, indent.getContext() + 1));
             }
             return "ARRAY[" + Joiner.on(",").join(valueStrings.build()) + "]";
         }
 
         @Override
-        protected String visitSubscriptExpression(SubscriptExpression node, Integer indent)
+        protected String visitSubscriptExpression(SubscriptExpression node, StackableAstVisitorContext<Integer> indent)
         {
-            return formatExpression(node.getBase(), parameters, indent) + "[" + formatExpression(node.getIndex(), parameters, indent) + "]";
+            return formatExpression(node.getBase(), parameters, indent.getContext()) + "[" + formatExpression(node.getIndex(), parameters, indent.getContext()) + "]";
         }
 
         @Override
-        protected String visitLongLiteral(LongLiteral node, Integer indent)
+        protected String visitLongLiteral(LongLiteral node, StackableAstVisitorContext<Integer> indent)
         {
             return Long.toString(node.getValue());
         }
 
         @Override
-        protected String visitDoubleLiteral(DoubleLiteral node, Integer indent)
+        protected String visitDoubleLiteral(DoubleLiteral node, StackableAstVisitorContext<Integer> indent)
         {
             return Double.toString(node.getValue());
         }
 
         @Override
-        protected String visitDecimalLiteral(DecimalLiteral node, Integer indent)
+        protected String visitDecimalLiteral(DecimalLiteral node, StackableAstVisitorContext<Integer> indent)
         {
             return "DECIMAL '" + node.getValue() + "'";
         }
 
         @Override
-        protected String visitGenericLiteral(GenericLiteral node, Integer indent)
+        protected String visitGenericLiteral(GenericLiteral node, StackableAstVisitorContext<Integer> indent)
         {
             return node.getType() + " " + formatStringLiteral(node.getValue());
         }
 
         @Override
-        protected String visitTimeLiteral(TimeLiteral node, Integer indent)
+        protected String visitTimeLiteral(TimeLiteral node, StackableAstVisitorContext<Integer> indent)
         {
             return "TIME '" + node.getValue() + "'";
         }
 
         @Override
-        protected String visitTimestampLiteral(TimestampLiteral node, Integer indent)
+        protected String visitTimestampLiteral(TimestampLiteral node, StackableAstVisitorContext<Integer> indent)
         {
             return "TIMESTAMP '" + node.getValue() + "'";
         }
 
         @Override
-        protected String visitNullLiteral(NullLiteral node, Integer indent)
+        protected String visitNullLiteral(NullLiteral node, StackableAstVisitorContext<Integer> indent)
         {
             return "null";
         }
 
         @Override
-        protected String visitIntervalLiteral(IntervalLiteral node, Integer indent)
+        protected String visitIntervalLiteral(IntervalLiteral node, StackableAstVisitorContext<Integer> indent)
         {
             String sign = (node.getSign() == IntervalLiteral.Sign.NEGATIVE) ? "- " : "";
             StringBuilder builder = new StringBuilder()
@@ -273,36 +274,36 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitSubqueryExpression(SubqueryExpression node, Integer indent)
+        protected String visitSubqueryExpression(SubqueryExpression node, StackableAstVisitorContext<Integer> indent)
         {
-            return "(\n" + formatSql(node.getQuery(), parameters, indent + 1) + indentString(indent) + ')';
+            return "(\n" + formatSql(node.getQuery(), parameters, indent.getContext() + 1) + indentString(indent.getContext()) + ')';
         }
 
         @Override
-        protected String visitExists(ExistsPredicate node, Integer indent)
+        protected String visitExists(ExistsPredicate node, StackableAstVisitorContext<Integer> indent)
         {
-            return "EXISTS " + process(node.getSubquery(), indent) + indentString(indent);
+            return "EXISTS " + process(node.getSubquery(), indent) + indentString(indent.getContext());
         }
 
         @Override
-        protected String visitIdentifier(Identifier node, Integer context)
+        protected String visitIdentifier(Identifier node, StackableAstVisitorContext<Integer> indent)
         {
             return formatIdentifier(node.getName());
         }
 
         @Override
-        protected String visitLambdaArgumentDeclaration(LambdaArgumentDeclaration node, Integer indent)
+        protected String visitLambdaArgumentDeclaration(LambdaArgumentDeclaration node, StackableAstVisitorContext<Integer> indent)
         {
             return formatIdentifier(node.getName());
         }
 
-        protected String visitSymbolReference(SymbolReference node, Integer indent)
+        protected String visitSymbolReference(SymbolReference node, StackableAstVisitorContext<Integer> indent)
         {
             return formatIdentifier(node.getName());
         }
 
         @Override
-        protected String visitDereferenceExpression(DereferenceExpression node, Integer indent)
+        protected String visitDereferenceExpression(DereferenceExpression node, StackableAstVisitorContext<Integer> indent)
         {
             String baseString = process(node.getBase(), indent);
             return baseString + "." + formatIdentifier(node.getFieldName());
@@ -318,14 +319,14 @@ public final class ExpressionFormatter
         }
 
         @Override
-        public String visitFieldReference(FieldReference node, Integer indent)
+        public String visitFieldReference(FieldReference node, StackableAstVisitorContext<Integer> indent)
         {
             // add colon so this won't parse
             return ":input(" + node.getFieldIndex() + ")";
         }
 
         @Override
-        protected String visitFunctionCall(FunctionCall node, Integer indent)
+        protected String visitFunctionCall(FunctionCall node, StackableAstVisitorContext<Integer> indent)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -352,7 +353,7 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitLambdaExpression(LambdaExpression node, Integer indent)
+        protected String visitLambdaExpression(LambdaExpression node, StackableAstVisitorContext<Integer> indent)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -364,58 +365,58 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitLogicalBinaryExpression(LogicalBinaryExpression node, Integer indent)
+        protected String visitLogicalBinaryExpression(LogicalBinaryExpression node, StackableAstVisitorContext<Integer> indent)
         {
             String left;
             if (node.getLeft() instanceof LogicalBinaryExpression && ((LogicalBinaryExpression) node.getLeft()).getType() != node.getType()) {
-                left = '(' + process(node.getLeft(), indent + 1) + ')';
+                left = '(' + process(node.getLeft(), new StackableAstVisitorContext(indent.getContext() + 1)) + ')';
             }
             else {
                 left = process(node.getLeft(), indent);
             }
             String right;
             if (node.getRight() instanceof LogicalBinaryExpression && ((LogicalBinaryExpression) node.getRight()).getType() != node.getType()) {
-                right = '(' + process(node.getRight(), indent + 1) + ')';
+                right = '(' + process(node.getRight(), new StackableAstVisitorContext(indent.getContext() + 1)) + ')';
             }
             else {
                 right = process(node.getRight(), indent);
             }
             return left + '\n'
-                    + indentString(indent + 1) + node.getType().toString() + ' ' + right;
+                    + indentString(indent.getContext() + 1) + node.getType().toString() + ' ' + right;
         }
 
         @Override
-        protected String visitNotExpression(NotExpression node, Integer indent)
+        protected String visitNotExpression(NotExpression node, StackableAstVisitorContext<Integer> indent)
         {
             return "(NOT " + process(node.getValue(), indent) + ")";
         }
 
         @Override
-        protected String visitComparisonExpression(ComparisonExpression node, Integer indent)
+        protected String visitComparisonExpression(ComparisonExpression node, StackableAstVisitorContext<Integer> indent)
         {
             return formatBinaryExpression(node.getType().getValue(), node.getLeft(), node.getRight(), indent);
         }
 
         @Override
-        protected String visitIsNullPredicate(IsNullPredicate node, Integer indent)
+        protected String visitIsNullPredicate(IsNullPredicate node, StackableAstVisitorContext<Integer> indent)
         {
             return "(" + process(node.getValue(), indent) + " IS NULL)";
         }
 
         @Override
-        protected String visitIsNotNullPredicate(IsNotNullPredicate node, Integer indent)
+        protected String visitIsNotNullPredicate(IsNotNullPredicate node, StackableAstVisitorContext<Integer> indent)
         {
             return "(" + process(node.getValue(), indent) + " IS NOT NULL)";
         }
 
         @Override
-        protected String visitNullIfExpression(NullIfExpression node, Integer indent)
+        protected String visitNullIfExpression(NullIfExpression node, StackableAstVisitorContext<Integer> indent)
         {
             return "NULLIF(" + process(node.getFirst(), indent) + ", " + process(node.getSecond(), indent) + ')';
         }
 
         @Override
-        protected String visitIfExpression(IfExpression node, Integer indent)
+        protected String visitIfExpression(IfExpression node, StackableAstVisitorContext<Integer> indent)
         {
             StringBuilder builder = new StringBuilder();
             builder.append("IF(")
@@ -431,19 +432,19 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitTryExpression(TryExpression node, Integer indent)
+        protected String visitTryExpression(TryExpression node, StackableAstVisitorContext<Integer> indent)
         {
             return "TRY(" + process(node.getInnerExpression(), indent) + ")";
         }
 
         @Override
-        protected String visitCoalesceExpression(CoalesceExpression node, Integer indent)
+        protected String visitCoalesceExpression(CoalesceExpression node, StackableAstVisitorContext<Integer> indent)
         {
             return "COALESCE(" + joinExpressions(node.getOperands(), indent) + ")";
         }
 
         @Override
-        protected String visitArithmeticUnary(ArithmeticUnaryExpression node, Integer indent)
+        protected String visitArithmeticUnary(ArithmeticUnaryExpression node, StackableAstVisitorContext<Integer> indent)
         {
             String value = process(node.getValue(), indent);
 
@@ -460,13 +461,13 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitArithmeticBinary(ArithmeticBinaryExpression node, Integer indent)
+        protected String visitArithmeticBinary(ArithmeticBinaryExpression node, StackableAstVisitorContext<Integer> indent)
         {
             return formatBinaryExpression(node.getType().getValue(), node.getLeft(), node.getRight(), indent);
         }
 
         @Override
-        protected String visitLikePredicate(LikePredicate node, Integer indent)
+        protected String visitLikePredicate(LikePredicate node, StackableAstVisitorContext<Integer> indent)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -486,7 +487,7 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitAllColumns(AllColumns node, Integer indent)
+        protected String visitAllColumns(AllColumns node, StackableAstVisitorContext<Integer> indent)
         {
             if (node.getPrefix().isPresent()) {
                 return node.getPrefix().get() + ".*";
@@ -496,14 +497,14 @@ public final class ExpressionFormatter
         }
 
         @Override
-        public String visitCast(Cast node, Integer indent)
+        public String visitCast(Cast node, StackableAstVisitorContext<Integer> indent)
         {
             return (node.isSafe() ? "TRY_CAST" : "CAST") +
                     "(" + process(node.getExpression(), indent) + " AS " + node.getType() + ")";
         }
 
         @Override
-        protected String visitSearchedCaseExpression(SearchedCaseExpression node, Integer indent)
+        protected String visitSearchedCaseExpression(SearchedCaseExpression node, StackableAstVisitorContext<Integer> indent)
         {
             ImmutableList.Builder<String> parts = ImmutableList.builder();
             parts.add("CASE");
@@ -520,7 +521,7 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitSimpleCaseExpression(SimpleCaseExpression node, Integer indent)
+        protected String visitSimpleCaseExpression(SimpleCaseExpression node, StackableAstVisitorContext<Integer> indent)
         {
             ImmutableList.Builder<String> parts = ImmutableList.builder();
 
@@ -540,46 +541,46 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitWhenClause(WhenClause node, Integer indent)
+        protected String visitWhenClause(WhenClause node, StackableAstVisitorContext<Integer> indent)
         {
             return "WHEN " + process(node.getOperand(), indent) + " THEN " + process(node.getResult(), indent);
         }
 
         @Override
-        protected String visitBetweenPredicate(BetweenPredicate node, Integer indent)
+        protected String visitBetweenPredicate(BetweenPredicate node, StackableAstVisitorContext<Integer> indent)
         {
             return "(" + process(node.getValue(), indent) + " BETWEEN " +
                     process(node.getMin(), indent) + " AND " + process(node.getMax(), indent) + ")";
         }
 
         @Override
-        protected String visitInPredicate(InPredicate node, Integer indent)
+        protected String visitInPredicate(InPredicate node, StackableAstVisitorContext<Integer> indent)
         {
             return "(" + process(node.getValue(), indent) + " IN " + process(node.getValueList(), indent) + ")";
         }
 
         @Override
-        protected String visitInListExpression(InListExpression node, Integer indent)
+        protected String visitInListExpression(InListExpression node, StackableAstVisitorContext<Integer> indent)
         {
             StringBuilder builder = new StringBuilder("(");
             boolean first = true;
             for (Expression expression : node.getValues()) {
                 builder.append("\n")
-                        .append(indentString(indent + 1))
+                        .append(indentString(indent.getContext() + 1))
                         .append(first ? "  " : ", ")
-                        .append(process(expression, indent + 1));
+                        .append(process(expression, new StackableAstVisitorContext(indent.getContext() + 1)));
                 first = false;
             }
             return builder.append(")").toString();
         }
 
-        private String visitFilter(Expression node, Integer indent)
+        private String visitFilter(Expression node, StackableAstVisitorContext<Integer> indent)
         {
             return "(WHERE " + process(node, indent) + ')';
         }
 
         @Override
-        public String visitWindow(Window node, Integer indent)
+        public String visitWindow(Window node, StackableAstVisitorContext<Integer> indent)
         {
             List<String> parts = new ArrayList<>();
 
@@ -587,7 +588,7 @@ public final class ExpressionFormatter
                 parts.add("PARTITION BY " + joinExpressions(node.getPartitionBy(), indent));
             }
             if (node.getOrderBy().isPresent()) {
-                parts.add("ORDER BY " + formatSortItems(node.getOrderBy().get().getSortItems(), parameters, indent));
+                parts.add("ORDER BY " + formatSortItems(node.getOrderBy().get().getSortItems(), parameters, indent.getContext()));
             }
             if (node.getFrame().isPresent()) {
                 parts.add(process(node.getFrame().get(), indent));
@@ -597,7 +598,7 @@ public final class ExpressionFormatter
         }
 
         @Override
-        public String visitWindowFrame(WindowFrame node, Integer indent)
+        public String visitWindowFrame(WindowFrame node, StackableAstVisitorContext<Integer> indent)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -617,7 +618,7 @@ public final class ExpressionFormatter
         }
 
         @Override
-        public String visitFrameBound(FrameBound node, Integer indent)
+        public String visitFrameBound(FrameBound node, StackableAstVisitorContext<Integer> indent)
         {
             switch (node.getType()) {
                 case UNBOUNDED_PRECEDING:
@@ -635,7 +636,7 @@ public final class ExpressionFormatter
         }
 
         @Override
-        protected String visitQuantifiedComparisonExpression(QuantifiedComparisonExpression node, Integer indent)
+        protected String visitQuantifiedComparisonExpression(QuantifiedComparisonExpression node, StackableAstVisitorContext<Integer> indent)
         {
             return new StringBuilder()
                     .append(process(node.getValue(), indent))
@@ -648,12 +649,12 @@ public final class ExpressionFormatter
                     .toString();
         }
 
-        private String formatBinaryExpression(String operator, Expression left, Expression right, Integer indent)
+        private String formatBinaryExpression(String operator, Expression left, Expression right, StackableAstVisitorContext<Integer> indent)
         {
-            return "(" + process(left, indent + 1) + ' ' + operator + ' ' + process(right, indent + 1) + ')';
+            return "(" + process(left, new StackableAstVisitorContext(indent.getContext() + 1)) + ' ' + operator + ' ' + process(right, new StackableAstVisitorContext(indent.getContext() + 1)) + ')';
         }
 
-        private String joinExpressions(List<Expression> expressions, Integer indent)
+        private String joinExpressions(List<Expression> expressions, StackableAstVisitorContext<Integer> indent)
         {
             return Joiner.on(", ").join(expressions.stream()
                     .map((e) -> process(e, indent))
