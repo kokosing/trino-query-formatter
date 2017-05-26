@@ -230,8 +230,8 @@ public final class StatementFormatter
 
             processRelation(node.getQueryBody(), indent);
 
-            if (!node.getOrderBy().isEmpty()) {
-                append(indent, "ORDER BY " + formatSortItems(node.getOrderBy(), parameters, indent))
+            if (node.getOrderBy().isPresent()) {
+                append(indent, "ORDER BY " + formatSortItems(node.getOrderBy().get().getSortItems(), parameters, indent))
                         .append('\n');
             }
 
@@ -271,8 +271,8 @@ public final class StatementFormatter
                         .append('\n');
             }
 
-            if (!node.getOrderBy().isEmpty()) {
-                append(indent, "ORDER BY " + formatSortItems(node.getOrderBy(), parameters, indent))
+            if (node.getOrderBy().isPresent()) {
+                append(indent, "ORDER BY " + formatSortItems(node.getOrderBy().get().getSortItems(), parameters, indent))
                         .append('\n');
             }
 

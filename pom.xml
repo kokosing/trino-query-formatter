@@ -53,12 +53,12 @@
 
         <air.java.version>1.8.0-60</air.java.version>
         <air.maven.version>3.3.9</air.maven.version>
-        <dep.slice.version>0.28</dep.slice.version>
+        <dep.slice.version>0.29</dep.slice.version>
 
         <cli.skip-execute>true</cli.skip-execute>
         <cli.main-class>None</cli.main-class>
 
-        <presto.version>0.165</presto.version>
+        <presto.version>0.177</presto.version>
     </properties>
 
     <dependencies>
@@ -70,7 +70,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
+            <version>21.0</version>
         </dependency>
     </dependencies>
     <build>
