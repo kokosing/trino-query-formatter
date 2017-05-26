@@ -374,7 +374,7 @@ public final class ExpressionFormatter
                     .orElse(false);
 
             if (!sameTypeAsPreviousExpression) {
-                indent = new StackableAstVisitorContext<>(indent.getContext() + 1);
+                indent = increase(indent);
             }
 
             String formattedNode = process(node.getLeft(), indent) + '\n'
@@ -385,6 +385,11 @@ public final class ExpressionFormatter
             else {
                 return "(" + formattedNode + ")";
             }
+        }
+
+        private StackableAstVisitorContext<Integer> increase(StackableAstVisitorContext<Integer> indent)
+        {
+            return new StackableAstVisitorContext<>(indent.getContext() + 1);
         }
 
         @Override
@@ -570,7 +575,7 @@ public final class ExpressionFormatter
                 builder.append("\n")
                         .append(indentString(indent.getContext() + 1))
                         .append(first ? "  " : ", ")
-                        .append(process(expression, new StackableAstVisitorContext(indent.getContext() + 1)));
+                        .append(process(expression, increase(indent)));
                 first = false;
             }
             return builder.append(")").toString();
@@ -655,8 +660,7 @@ public final class ExpressionFormatter
 
         private String formatBinaryExpression(String operator, Expression left, Expression right, StackableAstVisitorContext<Integer> indent)
         {
-            return "(" + process(left, new StackableAstVisitorContext(indent.getContext() + 1)) + ' ' + operator + ' ' + process(right, new
-                    StackableAstVisitorContext(indent.getContext() + 1)) + ')';
+            return "(" + process(left, increase(indent)) + ' ' + operator + ' ' + process(right, increase(indent)) + ')';
         }
 
         private String joinExpressions(List<Expression> expressions, StackableAstVisitorContext<Integer> indent)
