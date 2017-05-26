@@ -33,15 +33,21 @@ public class TestStatementFormatter {
     }
 
     private void testQuery(String query) {
-        System.out.println("Testing: " + query);
+        System.out.println(">>>> Testing: " + query);
         Statement statement = SQL_PARSER.createStatement(query);
         String formmatted = formatSql(statement);
+        System.out.println(formmatted);
         assertEquals(formmatted, formatSql(SQL_PARSER.createStatement(formmatted)));
     }
 
     @Test
     public void testQuery() {
-        testQuery("SELECT x IN (SELECT TRUE) FROM (SELECT * FROM (VALUES CAST(NULL AS BOOLEAN)) t(x) WHERE (x OR NULL) IS NULL)");
+        testQuery(
+                "SELECT (1 = ANY(SELECT 1)) "
+        );
+        testQuery(
+                "SELECT (1 = ANY(SELECT 1)) IN (SELECT TRUE)"
+        );
     }
 
     private Stream<String> queries() {

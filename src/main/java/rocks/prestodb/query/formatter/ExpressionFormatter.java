@@ -193,7 +193,8 @@ public final class ExpressionFormatter
         protected String visitParameter(Parameter node, StackableAstVisitorContext<Integer> indent)
         {
             if (parameters.isPresent()) {
-                checkArgument(node.getPosition() < parameters.get().size(), "Invalid parameter number %s.  Max value is %s", node.getPosition(), parameters.get().size() - 1);
+                checkArgument(node.getPosition() < parameters.get().size(), "Invalid parameter number %s.  Max value is %s", node.getPosition(), parameters
+                        .get().size() - 1);
                 return process(parameters.get().get(node.getPosition()), indent);
             }
             return "?";
@@ -212,7 +213,8 @@ public final class ExpressionFormatter
         @Override
         protected String visitSubscriptExpression(SubscriptExpression node, StackableAstVisitorContext<Integer> indent)
         {
-            return formatExpression(node.getBase(), parameters, indent.getContext()) + "[" + formatExpression(node.getIndex(), parameters, indent.getContext()) + "]";
+            return formatExpression(node.getBase(), parameters, indent.getContext()) + "[" + formatExpression(node.getIndex(), parameters, indent.getContext
+                    ()) + "]";
         }
 
         @Override
@@ -367,22 +369,22 @@ public final class ExpressionFormatter
         @Override
         protected String visitLogicalBinaryExpression(LogicalBinaryExpression node, StackableAstVisitorContext<Integer> indent)
         {
-            String left;
-            if (node.getLeft() instanceof LogicalBinaryExpression && ((LogicalBinaryExpression) node.getLeft()).getType() != node.getType()) {
-                left = '(' + process(node.getLeft(), new StackableAstVisitorContext(indent.getContext() + 1)) + ')';
+            boolean sameTypeAsPreviousExpression = indent.getPreviousNode()
+                    .map(previous -> previous instanceof LogicalBinaryExpression && ((LogicalBinaryExpression) previous).getType() == node.getType())
+                    .orElse(false);
+
+            if (!sameTypeAsPreviousExpression) {
+                indent = new StackableAstVisitorContext<>(indent.getContext() + 1);
+            }
+
+            String formattedNode = process(node.getLeft(), indent) + '\n'
+                    + indentString(indent.getContext() + 1) + node.getType().toString() + ' ' + process(node.getRight(), indent);
+            if (sameTypeAsPreviousExpression) {
+                return formattedNode;
             }
             else {
-                left = process(node.getLeft(), indent);
+                return "(" + formattedNode + ")";
             }
-            String right;
-            if (node.getRight() instanceof LogicalBinaryExpression && ((LogicalBinaryExpression) node.getRight()).getType() != node.getType()) {
-                right = '(' + process(node.getRight(), new StackableAstVisitorContext(indent.getContext() + 1)) + ')';
-            }
-            else {
-                right = process(node.getRight(), indent);
-            }
-            return left + '\n'
-                    + indentString(indent.getContext() + 1) + node.getType().toString() + ' ' + right;
         }
 
         @Override
@@ -639,6 +641,7 @@ public final class ExpressionFormatter
         protected String visitQuantifiedComparisonExpression(QuantifiedComparisonExpression node, StackableAstVisitorContext<Integer> indent)
         {
             return new StringBuilder()
+                    .append("(")
                     .append(process(node.getValue(), indent))
                     .append(' ')
                     .append(node.getComparisonType().getValue())
@@ -646,12 +649,14 @@ public final class ExpressionFormatter
                     .append(node.getQuantifier().toString())
                     .append(' ')
                     .append(process(node.getSubquery(), indent))
+                    .append(")")
                     .toString();
         }
 
         private String formatBinaryExpression(String operator, Expression left, Expression right, StackableAstVisitorContext<Integer> indent)
         {
-            return "(" + process(left, new StackableAstVisitorContext(indent.getContext() + 1)) + ' ' + operator + ' ' + process(right, new StackableAstVisitorContext(indent.getContext() + 1)) + ')';
+            return "(" + process(left, new StackableAstVisitorContext(indent.getContext() + 1)) + ' ' + operator + ' ' + process(right, new
+                    StackableAstVisitorContext(indent.getContext() + 1)) + ')';
         }
 
         private String joinExpressions(List<Expression> expressions, StackableAstVisitorContext<Integer> indent)
