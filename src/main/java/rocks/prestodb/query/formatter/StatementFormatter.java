@@ -109,7 +109,14 @@ public final class StatementFormatter
     private static final String INDENT = "   ";
     private static final Pattern NAME_PATTERN = Pattern.compile("[a-z_][a-z0-9_]*");
 
-    private StatementFormatter() {}
+    private StatementFormatter()
+    {
+    }
+
+    public static String formatSql(Node root)
+    {
+        return formatSql(root, Optional.empty());
+    }
 
     public static String formatSql(Node root, Optional<List<Expression>> parameters)
     {
@@ -263,7 +270,8 @@ public final class StatementFormatter
             }
 
             if (node.getGroupBy().isPresent()) {
-                append(indent, "GROUP BY " + (node.getGroupBy().get().isDistinct() ? " DISTINCT " : "") + formatGroupBy(node.getGroupBy().get().getGroupingElements(), indent)).append('\n');
+                append(indent, "GROUP BY " + (node.getGroupBy().get().isDistinct() ? " DISTINCT " : "") + formatGroupBy(node.getGroupBy().get()
+                        .getGroupingElements(), indent)).append('\n');
             }
 
             if (node.getHaving().isPresent()) {

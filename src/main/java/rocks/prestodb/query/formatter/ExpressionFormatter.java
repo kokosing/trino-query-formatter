@@ -94,7 +94,9 @@ import static rocks.prestodb.query.formatter.StatementFormatter.indentString;
 
 public final class ExpressionFormatter
 {
-    private ExpressionFormatter() {}
+    private ExpressionFormatter()
+    {
+    }
 
     public static String formatExpression(Expression expression, Optional<List<Expression>> parameters, int indent)
     {
@@ -279,7 +281,7 @@ public final class ExpressionFormatter
         @Override
         protected String visitExists(ExistsPredicate node, Integer indent)
         {
-            return "EXISTS (\n" + formatSql(node.getSubquery(), parameters, indent + 1) + indentString(indent) + ")";
+            return "EXISTS " + process(node.getSubquery(), indent) + indentString(indent);
         }
 
         @Override
