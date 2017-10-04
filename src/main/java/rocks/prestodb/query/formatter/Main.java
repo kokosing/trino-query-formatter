@@ -60,7 +60,7 @@ public class Main
     {
         Statement statement = SQL_PARSER.createStatement(sql);
         String formattedSql = formatSql(statement);
-        checkState(statement.equals(SQL_PARSER.createStatement(formattedSql)), "Formatted SQL is different than oryginal");
+        checkState(statement.equals(SQL_PARSER.createStatement(formattedSql)), "Formatted SQL is different than original");
         System.out.println(formattedSql + ";");
     }
 }
