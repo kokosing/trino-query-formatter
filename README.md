@@ -12,5 +12,5 @@ SQL query formatter that supports Presto syntax
 Check this [page](http://prestodb.rocks/projects/presto-query-formatter/) to see more documentation about how to use this tool.
 
 ```
-echo 'SELECT 1;' | java -jar target/presto-root-0.1-SNAPSHOT-executable.jar 
+echo 'SELECT 1;' | java -jar target/presto-query-formatter-*-executable.jar
 ```
