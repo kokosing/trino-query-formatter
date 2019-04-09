@@ -4,7 +4,7 @@ SQL query formatter that supports Presto syntax
 # Build
 
 ```
-mvn install
+./mvnw clean install
 ```
 
 # Usage 
