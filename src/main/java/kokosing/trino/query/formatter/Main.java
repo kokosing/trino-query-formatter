@@ -11,19 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package rocks.prestodb.query.formatter;
+package kokosing.trino.query.formatter;
 
-import com.facebook.presto.sql.parser.SqlParser;
-import com.facebook.presto.sql.parser.StatementSplitter;
-import com.facebook.presto.sql.tree.Statement;
 import com.google.common.collect.ImmutableSet;
+import io.trino.sql.parser.ParsingOptions;
+import io.trino.sql.parser.SqlParser;
+import io.trino.sql.parser.StatementSplitter;
+import io.trino.sql.tree.Statement;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
 import static com.google.common.base.Preconditions.checkState;
-import static rocks.prestodb.query.formatter.StatementFormatter.formatSql;
+import static io.trino.sql.SqlFormatter.formatSql;
 
 public class Main
 {
@@ -58,9 +59,10 @@ public class Main
 
     private static void format(String sql)
     {
-        Statement statement = SQL_PARSER.createStatement(sql);
+        ParsingOptions parsingOptions = new ParsingOptions();
+        Statement statement = SQL_PARSER.createStatement(sql, parsingOptions);
         String formattedSql = formatSql(statement);
-        checkState(statement.equals(SQL_PARSER.createStatement(formattedSql)), "Formatted SQL is different than original");
+        checkState(statement.equals(SQL_PARSER.createStatement(formattedSql, parsingOptions)), "Formatted SQL is different than original");
         System.out.println(formattedSql + ";");
     }
 }

@@ -5,17 +5,17 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>59</version>
+        <version>106</version>
     </parent>
 
-    <groupId>rocks.prestodb</groupId>
-    <artifactId>presto-query-formatter</artifactId>
+    <groupId>rocks.trino</groupId>
+    <artifactId>trino-query-formatter</artifactId>
     <version>0.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>presto-query-formatter</name>
-    <description>Presto query formatter</description>
-    <url>https://github.com/prestodb-rocks/presto-query-formatter</url>
+    <name>trino-query-formatter</name>
+    <description>Trino query formatter</description>
+    <url>https://github.com/kokosing/trino-query-formatter</url>
 
     <inceptionYear>2016</inceptionYear>
 
@@ -26,21 +26,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
-    <developers>
-        <developer>
-            <name>Grzegorz Kokosinski</name>
-            <email>kokosing@prestodb.rocks</email>
-            <organization>prestodb.rocks</organization>
-            <organizationUrl>http://prestodb.rocks</organizationUrl>
-        </developer>
-    </developers>
-
-    <scm>
-        <connection>scm:git:git://github.com/prestodb-rocks/presto-query-formatter.git</connection>
-        <url>https://github.com/facebook/presto</url>
-        <tag>HEAD</tag>
-    </scm>
 
     <properties>
         <air.main.basedir>${project.basedir}</air.main.basedir>
@@ -53,24 +38,24 @@
 
         <air.java.version>1.8.0-60</air.java.version>
         <air.maven.version>3.3.9</air.maven.version>
-        <dep.slice.version>0.29</dep.slice.version>
+        <dep.slice.version>0.39</dep.slice.version>
 
         <cli.skip-execute>true</cli.skip-execute>
         <cli.main-class>None</cli.main-class>
 
-        <presto.version>0.177</presto.version>
+        <trino.version>353</trino.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.facebook.presto</groupId>
-            <artifactId>presto-parser</artifactId>
-            <version>${presto.version}</version>
+            <groupId>io.trino</groupId>
+            <artifactId>trino-parser</artifactId>
+            <version>${trino.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>21.0</version>
+            <version>30.1-jre</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -96,7 +81,7 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Main-Class>rocks.prestodb.query.formatter.Main</Main-Class>
+                                        <Main-Class>rocks.trino.query.formatter.Main</Main-Class>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
@@ -134,17 +119,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh-prestodb-rocks</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh-prestodb-rocks</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 
     <profiles>
         <profile>
@@ -190,17 +164,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.7</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>ossrh-prestodb-rocks</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
