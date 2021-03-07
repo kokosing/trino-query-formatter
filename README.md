@@ -1,5 +1,5 @@
-# presto-query-formatter [![Build Status](https://travis-ci.org/prestodb-rocks/presto-query-formatter.svg?branch=master)](https://travis-ci.org/prestodb-rocks/presto-query-formatter)
-SQL query formatter that supports Presto syntax
+# Trino-query-formatter 
+SQL query formatter that supports Trino syntax
 
 # Build
 
@@ -9,8 +9,7 @@ SQL query formatter that supports Presto syntax
 
 # Usage 
 
-Check this [page](http://prestodb.rocks/projects/presto-query-formatter/) to see more documentation about how to use this tool.
 
 ```
-echo 'SELECT 1;' | java -jar target/presto-query-formatter-*-executable.jar
+echo 'SELECT 1;' | java -jar target/trino-query-formatter-*-executable.jar
 ```
