@@ -30,6 +30,12 @@ public class Main
 {
     private static final SqlParser SQL_PARSER = new SqlParser();
 
+    protected Main()
+    {
+        // prevents calls from subclass
+        throw new UnsupportedOperationException();
+    }
+
     public static void main(String[] args)
             throws IOException
     {
