@@ -1,0 +1,40 @@
+---
+name: Java CI (autogen)
+
+on:
+  push:
+    branches:
+      - development
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: ['17.0.7+7']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: ${{ matrix.java-version }}
+        distribution: 'temurin'
+
+    # # - name: Run mvn install
+    # #   run: |
+    # #     ./mvnw -B install -DskipTests -Dmaven.javadoc.skip=true -Dair.check.skip-all=true
+
+    # - name: Run tests
+    #   run: |
+    #     ./mvnw test -B
+
+    - name: Build with Maven
+      run: ./mvnw -B clean install -DskipTests
