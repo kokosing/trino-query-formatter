@@ -1,13 +1,13 @@
 ---
-name: Java CI (autogen)
+name: Java CI
 
 on:
   push:
     branches:
-      - development
+      - master
   pull_request:
     branches:
-      - development
+      - master
 
 jobs:
   build:
@@ -27,14 +27,6 @@ jobs:
       with:
         java-version: ${{ matrix.java-version }}
         distribution: 'temurin'
-
-    # # - name: Run mvn install
-    # #   run: |
-    # #     ./mvnw -B install -DskipTests -Dmaven.javadoc.skip=true -Dair.check.skip-all=true
-
-    # - name: Run tests
-    #   run: |
-    #     ./mvnw test -B
 
     - name: Build with Maven
       run: ./mvnw -B clean install -DskipTests
